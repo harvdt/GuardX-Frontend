@@ -1,9 +1,19 @@
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import "./styles/globals.css";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/auth/Auth";
-import DashboardLayout from "./pages/dashboard/dashboard";
+import TwitterCallback from "./pages/auth/TwitterCallback";
+import DashboardLayout from "./pages/dashboard/Dashboard";
+import { isAuthenticated } from "./utils/twitterAuthUtils";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  if (!isAuthenticated()) {
+	return <Navigate to="/auth" replace />;
+  }
+  
+  return children;
+}
 
 const App = () => {
 	return (
@@ -12,9 +22,19 @@ const App = () => {
 				<Route path="*" element={<NotFound />} />
 
 				<Route path="/" element={<Landing />} />
+				
 				<Route path="/auth" element={<Auth />} />
+				<Route path="/auth/twitter-callback" element={<TwitterCallback />} />
 
-				<Route path="/dashboard" element={<DashboardLayout />} />
+				<Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          } 
+        />
+				{/* <Route path="/dashboard" element={<DashboardLayout />} /> */}
 			</Routes>
 		</BrowserRouter>
 	);
