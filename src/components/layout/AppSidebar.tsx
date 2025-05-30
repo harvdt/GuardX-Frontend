@@ -33,8 +33,8 @@ import {
 
 const items = [
 	{
-		title: "Blocked Account",
-		url: "/dashboard#blockedAccount",
+		title: "Muted Account",
+		url: "/dashboard#mutedAccount",
 		icon: ShieldBan,
 	},
 	{

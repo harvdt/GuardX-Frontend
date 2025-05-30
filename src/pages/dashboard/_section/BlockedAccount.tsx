@@ -1,3 +1,8 @@
+import Chart from "@/components/layout/Chart";
+import ErrorLoadingData from "@/components/layout/ErrorLoadingData";
+import Loading from "@/components/layout/Loading";
+import TotalSection from "@/components/layout/TotalSection";
+import UserTable from "@/components/layout/UserTable";
 import {
 	Card,
 	CardContent,
@@ -6,100 +11,84 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
-	type ChartConfig,
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
-const chartData = [
-	{ month: "January", blocked: 186 },
-	{ month: "February", blocked: 305 },
-	{ month: "March", blocked: 237 },
-	{ month: "April", blocked: 73 },
-	{ month: "May", blocked: 209 },
-	{ month: "June", blocked: 214 },
-];
-const chartConfig = {
-	blocked: {
-		label: "Blocked",
-		color: "hsl(var(--chart-1))",
-	},
-} satisfies ChartConfig;
+import type { MutedChart, MutedUser } from "@/types/muted";
+import { fetchMutedStatistics } from "@/utils/statisticUtils";
+import { useEffect, useState } from "react";
 
 export default function BlockedAccount() {
-	const totalBlockedAccounts = chartData.reduce(
-		(acc, curr) => acc + curr.blocked,
+	const [chartData, setChartData] = useState<MutedChart[]>([]);
+	const [mutedUsers, setMutedUsers] = useState<MutedUser[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				setLoading(true);
+
+				const { chartData, usersData } = await fetchMutedStatistics({
+					filter: undefined,
+				});
+
+				setChartData(chartData);
+				setMutedUsers(usersData);
+			} catch (err) {
+				console.error("Error fetching data:", err);
+				setError(err instanceof Error ? err.message : "Unknown error occurred");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchData();
+	}, []);
+
+	console.log("Muted Users:", mutedUsers);
+
+	const totalMutedAccounts = chartData.reduce(
+		(acc: number, curr: MutedChart) => acc + curr.amount,
 		0,
 	);
 
-	const totalBlockedThisMonth =
-		chartData.find(
-			(item) =>
-				item.month === new Date().toLocaleString("default", { month: "long" }),
-		)?.blocked || 0;
+	const now = new Date();
+	const currentMonthYear = now.toLocaleString("default", {
+		month: "long",
+		year: "numeric",
+	});
+
+	const totalMutedThisMonth =
+		chartData.find((item: MutedChart) => item.month === currentMonthYear)
+			?.amount || 0;
+
+	if (loading) {
+		return <Loading />;
+	}
+
+	if (error) {
+		return <ErrorLoadingData error={error} />;
+	}
 
 	return (
 		<main>
 			<Card className="bg-white shadow-md rounded-lg border col-span-2">
 				<CardHeader>
-					<CardTitle>Total Blocked Accounts Chart</CardTitle>
+					<CardTitle>Total Muted Accounts Chart</CardTitle>
 					<CardDescription>
-						Showing chart of total Blocked Accounts all time
+						Showing chart of total Muted Accounts all time
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<ChartContainer config={chartConfig}>
-						<AreaChart
-							accessibilityLayer
-							data={chartData}
-							margin={{
-								left: 12,
-								right: 12,
-							}}
-						>
-							<CartesianGrid vertical={false} />
-							<XAxis
-								dataKey="month"
-								tickLine={false}
-								axisLine={false}
-								tickMargin={8}
-								tickFormatter={(value) => value.slice(0, 3)}
-							/>
-							<ChartTooltip
-								cursor={false}
-								content={<ChartTooltipContent indicator="dot" hideLabel />}
-							/>
-							<Area
-								dataKey="blocked"
-								type="linear"
-								fill="var(--color-blocked)"
-								fillOpacity={0.4}
-								stroke="var(--color-blocked)"
-							/>
-						</AreaChart>
-					</ChartContainer>
-				</CardContent>
-				<CardFooter className="flex flex-col sm:flex-row items-center justify-between px-4 py-2 rounded-b-lg">
-					<div className="flex flex-col items-center sm:items-start">
-						<p className="text-sm font-medium text-gray-700">
-							Total Blocked Accounts All Time
-						</p>
-						<p className="text-lg font-bold text-gray-900">
-							{totalBlockedAccounts}
-						</p>
-					</div>
+					<Chart data={chartData} />
 
-					<div className="flex flex-col items-center sm:items-end">
-						<p className="text-sm font-medium text-gray-700">
-							Total Blocked Accounts This Month
-						</p>
-						<p className="text-lg font-bold text-gray-900">
-							{totalBlockedThisMonth}
-						</p>
-					</div>
+					<TotalSection
+						firstTitle="Total Muted Accounts All Time"
+						secondTitle="Total Muted Accounts This Month"
+						totalAccounts={totalMutedAccounts}
+						totalThisMonth={totalMutedThisMonth}
+					/>
+				</CardContent>
+				<CardFooter>
+					<UserTable data={mutedUsers} />
 				</CardFooter>
 			</Card>
 		</main>

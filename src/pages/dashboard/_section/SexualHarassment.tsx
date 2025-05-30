@@ -1,3 +1,8 @@
+import Chart from "@/components/layout/Chart";
+import ErrorLoadingData from "@/components/layout/ErrorLoadingData";
+import Loading from "@/components/layout/Loading";
+import TotalSection from "@/components/layout/TotalSection";
+import UserTable from "@/components/layout/UserTable";
 import {
 	Card,
 	CardContent,
@@ -6,40 +11,60 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
-	type ChartConfig,
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-
-const chartData = [
-	{ month: "January", detected: 50 },
-	{ month: "February", detected: 35 },
-	{ month: "March", detected: 137 },
-	{ month: "April", detected: 23 },
-	{ month: "May", detected: 109 },
-	{ month: "June", detected: 4 },
-];
-const chartConfig = {
-	detected: {
-		label: "Detected",
-		color: "hsl(var(--chart-1))",
-	},
-} satisfies ChartConfig;
+import type { MutedChart, MutedUser } from "@/types/muted";
+import { fetchMutedStatistics } from "@/utils/statisticUtils";
+import { useEffect, useState } from "react";
 
 export default function SexualHarassment() {
+	const [chartData, setChartData] = useState<MutedChart[]>([]);
+	const [mutedUsers, setMutedUsers] = useState<MutedUser[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				setLoading(true);
+
+				const { chartData, usersData } = await fetchMutedStatistics({
+					filter: "sexual_harassment",
+				});
+
+				setChartData(chartData);
+				setMutedUsers(usersData);
+			} catch (err) {
+				console.error("Error fetching data:", err);
+				setError(err instanceof Error ? err.message : "Unknown error occurred");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchData();
+	}, []);
+
 	const totalDetectedReplies = chartData.reduce(
-		(acc, curr) => acc + curr.detected,
+		(acc: number, curr: MutedChart) => acc + curr.amount,
 		0,
 	);
 
+	const now = new Date();
+	const currentMonthYear = now.toLocaleString("default", {
+		month: "long",
+		year: "numeric",
+	});
+
 	const totalDetectedThisMonth =
-		chartData.find(
-			(item) =>
-				item.month === new Date().toLocaleString("default", { month: "long" }),
-		)?.detected || 0;
+		chartData.find((item: MutedChart) => item.month === currentMonthYear)
+			?.amount || 0;
+
+	if (loading) {
+		return <Loading />;
+	}
+
+	if (error) {
+		return <ErrorLoadingData error={error} />;
+	}
 
 	return (
 		<main>
@@ -51,55 +76,17 @@ export default function SexualHarassment() {
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<ChartContainer config={chartConfig}>
-						<AreaChart
-							accessibilityLayer
-							data={chartData}
-							margin={{
-								left: 12,
-								right: 12,
-							}}
-						>
-							<CartesianGrid vertical={false} />
-							<XAxis
-								dataKey="month"
-								tickLine={false}
-								axisLine={false}
-								tickMargin={8}
-								tickFormatter={(value) => value.slice(0, 3)}
-							/>
-							<ChartTooltip
-								cursor={false}
-								content={<ChartTooltipContent indicator="dot" hideLabel />}
-							/>
-							<Area
-								dataKey="detected"
-								type="linear"
-								fill="var(--color-detected)"
-								fillOpacity={0.4}
-								stroke="var(--color-detected)"
-							/>
-						</AreaChart>
-					</ChartContainer>
+					<Chart data={chartData} />
+
+					<TotalSection
+						firstTitle="Total Detected Sexual Harassment Replies All Time"
+						secondTitle="Total Dectected Sexual Harassment Replies This Month"
+						totalAccounts={totalDetectedReplies}
+						totalThisMonth={totalDetectedThisMonth}
+					/>
 				</CardContent>
 				<CardFooter className="flex flex-col sm:flex-row items-center justify-between px-4 py-2 rounded-b-lg">
-					<div className="flex flex-col items-center sm:items-start">
-						<p className="text-sm font-medium text-gray-700">
-							Total Detected Sexual Harassment Replies All Time
-						</p>
-						<p className="text-lg font-bold text-gray-900">
-							{totalDetectedReplies}
-						</p>
-					</div>
-
-					<div className="flex flex-col items-center sm:items-end">
-						<p className="text-sm font-medium text-gray-700">
-							Total Dectected Sexual Harassment Replies This Month
-						</p>
-						<p className="text-lg font-bold text-gray-900">
-							{totalDetectedThisMonth}
-						</p>
-					</div>
+					<UserTable data={mutedUsers} />
 				</CardFooter>
 			</Card>
 		</main>

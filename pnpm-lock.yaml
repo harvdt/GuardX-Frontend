@@ -81,9 +81,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.5
         version: 18.3.6(@types/react@18.3.20)
-      husky:
-        specifier: ^9.1.7
-        version: 9.1.7
       tailwindcss:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1094,11 +1091,6 @@ packages:
 
   html-entities@2.6.0:
     resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
-
-  husky@9.1.7:
-    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   internmap@2.0.3:
     resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
@@ -2246,8 +2238,6 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   html-entities@2.6.0: {}
-
-  husky@9.1.7: {}
 
   internmap@2.0.3: {}
 

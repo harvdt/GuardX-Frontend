@@ -26,7 +26,7 @@ export default function DashboardLayout() {
 				<SidebarTrigger className="z-50 absolute" />
 
 				<div className="space-y-5 mt-8">
-					<div id="blockedAccount">
+					<div id="mutedAccount">
 						<BlockedAccount />
 					</div>
 

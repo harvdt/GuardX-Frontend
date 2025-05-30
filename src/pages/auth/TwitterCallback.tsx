@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
@@ -12,7 +11,9 @@ interface TwitterCallbackData {
 		twitter_username?: string;
 		access_token?: string;
 		refresh_token?: string;
+		backend_token?: string;
 		expire_in?: string;
+		backend_token_expire_in?: string;
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		[key: string]: any;
 	};
@@ -25,23 +26,19 @@ export default function TwitterCallback() {
 	useEffect(() => {
 		const handleCallback = async () => {
 			try {
-				// Get current URL and parameters
 				const currentUrl = new URL(window.location.href);
 				const urlParams = currentUrl.searchParams;
 				const state = urlParams.get("state");
 				const code = urlParams.get("code");
 
-				// Check if we have the required parameters
 				if (!state || !code) {
 					setStatus("Authentication failed: Missing state or code parameters");
 					return;
 				}
 
-				// Check if cache_id is in the URL
 				let cacheId = urlParams.get("cache_id");
 
 				if (!cacheId) {
-					// Get cache_id from localStorage
 					cacheId = localStorage.getItem("twitter_cache_id");
 
 					if (!cacheId) {
@@ -49,19 +46,16 @@ export default function TwitterCallback() {
 						return;
 					}
 
-					// Add cache_id to URL without reloading
 					currentUrl.searchParams.append("cache_id", cacheId);
 					window.history.replaceState({}, "", currentUrl.toString());
 
 					setStatus("Added cache_id to URL, continuing authentication...");
 
-					// Small delay to ensure the URL change is processed
 					await new Promise((resolve) => setTimeout(resolve, 500));
 				}
 
 				setStatus("Processing authentication with server...");
 
-				// Now we have all required parameters, proceed with server authentication
 				const response = await fetch(
 					`http://127.0.0.1:4000/api/auth/twitter-callback?code=${code}&state=${state}&cache_id=${cacheId}`,
 					{
@@ -77,10 +71,8 @@ export default function TwitterCallback() {
 				const responseData: TwitterCallbackData = await response.json();
 
 				if (responseData.statusCode === 200 && responseData.data) {
-					// Authentication successful, store the data
 					localStorage.setItem("twitter_authenticated", "true");
 
-					// Store user data in localStorage
 					if (responseData.data) {
 						const userData = {
 							twitter_user_id: responseData.data.twitter_user_id,
@@ -88,9 +80,7 @@ export default function TwitterCallback() {
 						};
 						localStorage.setItem("twitter_user_data", JSON.stringify(userData));
 
-						// Store access_token in cookies
 						if (responseData.data.access_token) {
-							// Get expiration time - parse the 7200s format to seconds
 							const expireInSeconds =
 								Number.parseInt(responseData.data.expire_in || "7200s", 10) ||
 								7200;
@@ -98,14 +88,27 @@ export default function TwitterCallback() {
 								"twitter_access_token",
 								responseData.data.access_token,
 								{
-									expires: expireInSeconds / (60 * 60 * 24), // Convert seconds to days
+									expires: expireInSeconds / (60 * 60 * 24),
 									secure: window.location.protocol === "https:",
 									sameSite: "Lax",
 								},
 							);
 						}
 
-						// Store refresh_token in localStorage
+						if (responseData.data.backend_token) {
+							const backendExpireInSeconds =
+								Number.parseInt(
+									responseData.data.backend_token_expire_in || "604800",
+									10,
+								) || 604800;
+
+							Cookies.set("backend_token", responseData.data.backend_token, {
+								expires: backendExpireInSeconds / (60 * 60 * 24),
+								secure: window.location.protocol === "https:",
+								sameSite: "Lax",
+							});
+						}
+
 						if (responseData.data.refresh_token) {
 							localStorage.setItem(
 								"twitter_refresh_token",
@@ -114,7 +117,6 @@ export default function TwitterCallback() {
 						}
 					}
 
-					// Clear the cache_id since we don't need it anymore
 					localStorage.removeItem("twitter_cache_id");
 
 					setStatus("Authentication successful!");
@@ -123,7 +125,9 @@ export default function TwitterCallback() {
 					setStatus(
 						responseData.message.includes("No cache ID")
 							? "Authentication successful!"
-							: `Authentication failed: ${responseData.message || "Unknown error"}`,
+							: `Authentication failed: ${
+									responseData.message || "Unknown error"
+								}`,
 					);
 				}
 			} catch (error) {
