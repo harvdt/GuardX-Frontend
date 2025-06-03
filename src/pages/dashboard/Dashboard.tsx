@@ -26,15 +26,15 @@ export default function DashboardLayout() {
 				<SidebarTrigger className="z-50 absolute" />
 
 				<div className="space-y-5 mt-8">
-					<div id="mutedAccount">
+					<div id="muted-account">
 						<BlockedAccount />
 					</div>
 
-					<div id="sexualHarassment">
+					<div id="sexual-harassment">
 						<SexualHarassment />
 					</div>
 
-					<div id="cyberBullying">
+					<div id="hate-speech">
 						<CyberBullying />
 					</div>
 				</div>

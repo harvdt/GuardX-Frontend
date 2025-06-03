@@ -70,18 +70,18 @@ export default function CyberBullying() {
 		<main>
 			<Card className="bg-white shadow-md rounded-lg border col-span-2">
 				<CardHeader>
-					<CardTitle>Total Detected Cyber Bullying Chart</CardTitle>
+					<CardTitle>Total Detected Hate Speech Chart</CardTitle>
 					<CardDescription>
-						Showing chart of total detected Cyber Bullying replies all time
+						Showing chart of total detected Hate Speech replies all time
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<Chart data={chartData} />
 
 					<TotalSection
-						firstTitle="Total Detected Cyber Bullying Replies All Time"
+						firstTitle="Total Detected Hate Speech Replies All Time"
 						totalAccounts={totalDetectedReplies}
-						secondTitle="Total Dectected Cyber Bullying Replies This Month"
+						secondTitle="Total Dectected Hate Speech Replies This Month"
 						totalThisMonth={totalDetectedThisMonth}
 					/>
 				</CardContent>

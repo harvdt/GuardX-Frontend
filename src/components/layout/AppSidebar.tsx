@@ -34,17 +34,17 @@ import {
 const items = [
 	{
 		title: "Muted Account",
-		url: "/dashboard#mutedAccount",
+		url: "/dashboard#muted-account",
 		icon: ShieldBan,
 	},
 	{
 		title: "Sexual Harassment",
-		url: "/dashboard#sexualHarassment",
+		url: "/dashboard#sexual-harassment",
 		icon: ShieldAlert,
 	},
 	{
-		title: "Cyber Bullying",
-		url: "/dashboard#cyberBullying",
+		title: "Hate Speech",
+		url: "/dashboard#hate-speech",
 		icon: ShieldEllipsis,
 	},
 ];
