@@ -43,8 +43,6 @@ export default function BlockedAccount() {
 		fetchData();
 	}, []);
 
-	console.log("Muted Users:", mutedUsers);
-
 	const totalMutedAccounts = chartData.reduce(
 		(acc: number, curr: MutedChart) => acc + curr.amount,
 		0,
@@ -88,7 +86,7 @@ export default function BlockedAccount() {
 					/>
 				</CardContent>
 				<CardFooter>
-					<UserTable data={mutedUsers} />
+					<UserTable data={mutedUsers} type={"muted_account"} />
 				</CardFooter>
 			</Card>
 		</main>

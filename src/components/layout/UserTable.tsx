@@ -10,15 +10,18 @@ import {
 
 type UserTableProps = {
 	data: MutedUser[];
+	type: "hate_speech" | "sexual_harassment" | "muted_account";
 };
 
-const UserTable = ({ data }: UserTableProps) => {
+const UserTable = ({ data, type }: UserTableProps) => {
 	return (
 		<Table>
 			<TableHeader className="border-y border-gray-300">
 				<TableHead className="text-center font-bold">Username</TableHead>
 				<TableHead className="text-center font-bold">Timestamp</TableHead>
-				<TableHead className="text-center font-bold">Count</TableHead>
+				{type !== "muted_account" && (
+					<TableHead className="text-center font-bold">Count</TableHead>
+				)}
 			</TableHeader>
 			<TableBody>
 				{data.map((user, index) => (
@@ -30,10 +33,9 @@ const UserTable = ({ data }: UserTableProps) => {
 						<TableCell className="text-center">
 							{new Date(user.created_at).toLocaleDateString()}
 						</TableCell>
-						<TableCell className="text-center">
-							NULL
-							{/* {user.count} */}
-						</TableCell>
+						{type !== "muted_account" && (
+							<TableCell className="text-center">{user.count}</TableCell>
+						)}
 					</TableRow>
 				))}
 			</TableBody>

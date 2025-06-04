@@ -59,9 +59,33 @@ export const fetchMutedStatistics = async ({
 		throw new Error(usersData.message || "Failed to fetch users data");
 	}
 
+	const groupedUsersMap = new Map<string, MutedUser>();
+
+	for (const user of usersData.data) {
+		const key = `${user.blocked_user_id}|${user.blocked_username}`;
+
+		if (!groupedUsersMap.has(key)) {
+			groupedUsersMap.set(key, {
+				...user,
+				count: 1,
+			});
+		} else {
+			const existing = groupedUsersMap.get(key);
+
+			if (existing) {
+				if (new Date(user.created_at) > new Date(existing.created_at)) {
+					existing.created_at = user.created_at;
+					existing.blocked_tweet_id = user.blocked_tweet_id;
+				}
+
+				existing.count += 1;
+			}
+		}
+	}
+
 	return {
 		chartData: chartData.data,
-		usersData: usersData.data,
+		usersData: Array.from(groupedUsersMap.values()),
 	};
 };
 

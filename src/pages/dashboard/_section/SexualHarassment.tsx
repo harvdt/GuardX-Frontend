@@ -86,7 +86,7 @@ export default function SexualHarassment() {
 					/>
 				</CardContent>
 				<CardFooter className="flex flex-col sm:flex-row items-center justify-between px-4 py-2 rounded-b-lg">
-					<UserTable data={mutedUsers} />
+					<UserTable data={mutedUsers} type="sexual_harassment" />
 				</CardFooter>
 			</Card>
 		</main>
