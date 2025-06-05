@@ -70,17 +70,17 @@ export default function BlockedAccount() {
 		<main>
 			<Card className="bg-white shadow-md rounded-lg border col-span-2">
 				<CardHeader>
-					<CardTitle>Total Muted Accounts Chart</CardTitle>
+					<CardTitle>Total Detected Accounts Chart</CardTitle>
 					<CardDescription>
-						Showing chart of total Muted Accounts all time
+						Showing chart of total Detected Accounts all time
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<Chart data={chartData} />
 
 					<TotalSection
-						firstTitle="Total Muted Accounts All Time"
-						secondTitle="Total Muted Accounts This Month"
+						firstTitle="Total Detected Accounts All Time"
+						secondTitle="Total Detected Accounts This Month"
 						totalAccounts={totalMutedAccounts}
 						totalThisMonth={totalMutedThisMonth}
 					/>
