@@ -33,7 +33,7 @@ import {
 
 const items = [
 	{
-		title: "Muted Account",
+		title: "Detected Account",
 		url: "/dashboard#muted-account",
 		icon: ShieldBan,
 	},
